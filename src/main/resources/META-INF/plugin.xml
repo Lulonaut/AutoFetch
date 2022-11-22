@@ -13,7 +13,7 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[Periodically fetches all available git remotes in order to stay updated on any changes]]></description>
-    <change-notes>Switch to common fork pool for creating threads</change-notes>
+    <change-notes>Improve handling of multiple projects</change-notes>
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
