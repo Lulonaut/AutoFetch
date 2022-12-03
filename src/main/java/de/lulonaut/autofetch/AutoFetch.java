@@ -37,7 +37,7 @@ public class AutoFetch implements StartupActivity, StartupActivity.DumbAware {
                     }
                 }
             }
-        }, 0, 10, TimeUnit.SECONDS);
+        }, 0, AppSettingsState.getInstance().getAutoFetchDelay(), TimeUnit.MINUTES);
         gitFetchFuture.complete(task);
     }
 }
