@@ -1,5 +1,6 @@
 package de.lulonaut.autofetch;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.util.concurrency.AppExecutorUtil;
@@ -25,6 +26,7 @@ public class AutoFetch implements StartupActivity, StartupActivity.DumbAware {
                 //stop if the project is no longer open
                 if (project.isDisposed()) {
                     gitFetchFuture.cancel(true);
+                    return;
                 }
 
                 //get all connected git repos and sort out repos with no remotes
