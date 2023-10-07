@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "de.lulonaut"
-version = "1.3"
+version = "1.5"
 
 repositories {
     mavenCentral()
@@ -30,7 +30,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("213")
-        untilBuild.set("223.*")
+        untilBuild.set("")
     }
 
     signPlugin {
