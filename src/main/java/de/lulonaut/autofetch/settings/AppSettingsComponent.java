@@ -12,11 +12,11 @@ public class AppSettingsComponent {
     private JBIntSpinner jbIntSpinner;
 
     public AppSettingsComponent() {
-        enabledStatus = new JBCheckBox("Enable periodic fetching of all git remotes (Takes effect after the next fetch runs)", AppSettingsState.getInstance().getEnabledStatus());
+        enabledStatus = new JBCheckBox("Enable periodic fetching of all git remotes", AppSettingsState.getInstance().getEnabledStatus());
         jbIntSpinner = new JBIntSpinner(AppSettingsState.getInstance().getAutoFetchDelay(), 1, 60);
         mainPanel = FormBuilder.createFormBuilder()
                 .addComponent(enabledStatus, 1)
-                .addLabeledComponent(new JLabel("Refresh delay in minutes"), jbIntSpinner, 1)
+                .addLabeledComponent(new JLabel("Refresh delay in minutes (Takes effect after IDE restart)"), jbIntSpinner, 1)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
     }

@@ -1,12 +1,15 @@
 package de.lulonaut.autofetch;
 
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.openapi.vcs.ProjectLevelVcsManager;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import de.lulonaut.autofetch.settings.AppSettingsState;
 import git4idea.GitUtil;
-import git4idea.branch.GitBranchIncomingOutgoingManager;
+import git4idea.GitVcs;
 import git4idea.fetch.GitFetchSupport;
 import git4idea.repo.GitRepository;
 import org.jetbrains.annotations.NotNull;
@@ -18,11 +21,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class AutoFetch implements StartupActivity, StartupActivity.DumbAware {
+    private static final Logger LOG = Logger.getInstance(AutoFetch.class);
 
     @Override
     public void runActivity(@NotNull Project project) {
         // Wait for the initialization to avoid trying to issue a git fetch before any git logic is initialized
         ProjectLevelVcsManager.getInstance(project).runAfterInitialization(() -> {
+            // Do the initial fetch
             fetchAllRepos(project);
 
             // For subsequent fetches, use the AppExecutorUtil
@@ -44,10 +49,21 @@ public class AutoFetch implements StartupActivity, StartupActivity.DumbAware {
     private void fetchAllRepos(@NotNull Project project) {
         List<GitRepository> repositories = GitUtil.getRepositories(project).stream().filter(repo -> !repo.getRemotes().isEmpty()).collect(Collectors.toList());
         if (!repositories.isEmpty()) {
-            GitFetchSupport gitFetchSupport = GitFetchSupport.fetchSupport(project);
-            // The GitBranchIncomingOutgoingManager check *may* resolve an IDE error that sometimes appears when fetching
-            if (!gitFetchSupport.isFetchRunning() || GitBranchIncomingOutgoingManager.getInstance(project).isUpdating()) {
-                gitFetchSupport.fetchAllRemotes(repositories);
+            try {
+                GitVcs.runInBackground(new Task.Backgroundable(project, "Fetching all remotes") {
+                    @Override
+                    public void run(@NotNull ProgressIndicator indicator) {
+                        GitFetchSupport gitFetchSupport = GitFetchSupport.fetchSupport(project);
+                        if (!gitFetchSupport.isFetchRunning()) {
+                            gitFetchSupport.fetchAllRemotes(repositories);
+                        }
+                    }
+                });
+
+            } catch (IllegalStateException e) {
+                // Skip this fetch
+                LOG.warn("IllegalStateException while fetching");
+                LOG.warn(e);
             }
         }
     }
